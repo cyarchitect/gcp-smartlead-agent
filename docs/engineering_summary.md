@@ -92,13 +92,13 @@ To avoid timed-out REST requests during long enrichment tasks, we implemented a 
 ### Build & Deploy Commands
 ```bash
 # 1. Compile and upload the container image via Google Cloud Build
-gcloud builds submit --tag us-central1-docker.pkg.dev/project-3715c3f4-9240-400e-9f5/cloud-run-source-deploy/gcp-java-smartlead-agent:latest --region us-central1 --project project-3715c3f4-9240-400e-9f5
+gcloud builds submit --tag us-central1-docker.pkg.dev/YOUR_GCP_PROJECT_ID/cloud-run-source-deploy/gcp-java-smartlead-agent:latest --region us-central1 --project YOUR_GCP_PROJECT_ID
 
 # 2. Deploy container to Cloud Run with the Gemini API Key injection
 gcloud run deploy gcp-java-smartlead-agent \
-  --image us-central1-docker.pkg.dev/project-3715c3f4-9240-400e-9f5/cloud-run-source-deploy/gcp-java-smartlead-agent:latest \
+  --image us-central1-docker.pkg.dev/YOUR_GCP_PROJECT_ID/cloud-run-source-deploy/gcp-java-smartlead-agent:latest \
   --region us-central1 \
-  --project project-3715c3f4-9240-400e-9f5 \
+  --project YOUR_GCP_PROJECT_ID \
   --allow-unauthenticated \
   --set-env-vars "GEMINI_API_KEY=YOUR_API_KEY_HERE"
 ```
@@ -107,8 +107,8 @@ gcloud run deploy gcp-java-smartlead-agent \
 Use PowerShell or cURL to verify the application endpoints:
 ```powershell
 # Seed messy data
-Invoke-RestMethod -Uri "https://gcp-java-smartlead-agent-1085860688693.us-central1.run.app/api/leads/seed" -Method POST
+Invoke-RestMethod -Uri "https://YOUR_CLOUD_RUN_URL/api/leads/seed" -Method POST
 
 # Get current raw leads list
-Invoke-RestMethod -Uri "https://gcp-java-smartlead-agent-1085860688693.us-central1.run.app/api/leads" -Method GET
+Invoke-RestMethod -Uri "https://YOUR_CLOUD_RUN_URL/api/leads" -Method GET
 ```

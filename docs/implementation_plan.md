@@ -102,7 +102,7 @@ com.example.smartlead
 ### Phase 2: GCP Resource Activation
 Run commands to set up the default Firestore Native database and Vertex AI APIs:
 ```powershell
-gcloud config set project project-3715c3f4-9240-400e-9f5
+gcloud config set project YOUR_GCP_PROJECT_ID
 gcloud services enable firestore.googleapis.com generativelanguage.googleapis.com apikeys.googleapis.com
 gcloud firestore databases create --location=nam5 --type=firestore-native
 ```
@@ -126,13 +126,13 @@ gcloud firestore databases create --location=nam5 --type=firestore-native
 2. Deploy to Cloud Run:
 ```powershell
 # 1. Build container image
-gcloud builds submit --tag us-central1-docker.pkg.dev/project-3715c3f4-9240-400e-9f5/cloud-run-source-deploy/gcp-java-smartlead-agent:latest --region us-central1 --project project-3715c3f4-9240-400e-9f5
+gcloud builds submit --tag us-central1-docker.pkg.dev/YOUR_GCP_PROJECT_ID/cloud-run-source-deploy/gcp-java-smartlead-agent:latest --region us-central1 --project YOUR_GCP_PROJECT_ID
 
 # 2. Deploy to Cloud Run with environment variable configuration
 gcloud run deploy gcp-java-smartlead-agent `
-  --image us-central1-docker.pkg.dev/project-3715c3f4-9240-400e-9f5/cloud-run-source-deploy/gcp-java-smartlead-agent:latest `
+  --image us-central1-docker.pkg.dev/YOUR_GCP_PROJECT_ID/cloud-run-source-deploy/gcp-java-smartlead-agent:latest `
   --region us-central1 `
-  --project project-3715c3f4-9240-400e-9f5 `
+  --project YOUR_GCP_PROJECT_ID `
   --allow-unauthenticated `
   --set-env-vars "GEMINI_API_KEY=YOUR_API_KEY"
 ```

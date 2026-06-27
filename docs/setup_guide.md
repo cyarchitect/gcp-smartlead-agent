@@ -33,7 +33,7 @@ export GEMINI_API_KEY="AIzaSy..."
 Log in with your GCP Credentials:
 ```bash
 gcloud auth application-default login
-gcloud config set project project-3715c3f4-9240-400e-9f5
+gcloud config set project YOUR_GCP_PROJECT_ID
 ```
 
 ---

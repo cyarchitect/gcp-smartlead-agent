@@ -29,7 +29,7 @@ This walkthrough documents the technical updates made to migrate **SmartLead AI*
 ### 1. Database Seeding
 We successfully hit the seeding endpoint to populate Firestore:
 ```powershell
-Invoke-RestMethod -Uri "https://gcp-java-smartlead-agent-1085860688693.us-central1.run.app/api/leads/seed" -Method POST
+Invoke-RestMethod -Uri "https://YOUR_CLOUD_RUN_URL/api/leads/seed" -Method POST
 # Response:
 Database successfully seeded with messy leads.
 ```
