@@ -1,0 +1,53 @@
+# Maven Build Output
+target/
+*.releaseBackup
+pom.xml.releaseBackup
+pom.xml.tag
+pom.xml.next
+pom.xml.versionsBackup
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
+
+# Node / React Frontend Output
+frontend/node_modules/
+frontend/dist/
+frontend/build/
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+
+# IDE & Editor Settings
+.vscode/
+.idea/
+*.iml
+*.ipr
+*.iws
+.classpath
+.project
+.settings/
+.nb-confidence/
+.factorypath
+.recommenders/
+
+# Operating System Files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Secrets, Credentials, and Local Configs
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.key
+*.pem
+*key.json
+*credentials.json
+*secret*.json
+*private*.json
+gcp-*.json
+service-account*.json
