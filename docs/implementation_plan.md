@@ -3,34 +3,72 @@
 This project is a B2B Sales Operations reference architecture demonstrating how to use AI Agents (via LangChain4j and Google AI Gemini) and custom Java data-quality matching to clean, enrich, and deduplicate sales leads in real-time.
 
 ```mermaid
-graph TD
-    subgraph Client [React Frontend - Glassmorphic]
-        UI[Lead Board & Chat Console]
-        SSE[SSE Live Updater]
+graph LR
+    %% 1. Client Layer (Left)
+    subgraph Client ["React Frontend (Client Layer)"]
+        UI["Lead Board & Chat Console"]
+        SSE["SSE Live Updater"]
     end
 
-    subgraph Service [Spring Boot Backend]
-        subgraph REST [Presentation Layer]
-            LeadController[Lead REST API]
-            EventController[SSE Stream API]
-        end
-
-        subgraph Core [Application & Domain]
-            Enricher[AI Enrichment Coordinator]
-            MatchEngine[Java Jaro-Winkler Match Engine]
-            LeadService[Lead Management Service]
-        end
-
-        subgraph Adapt [Infrastructure Adapters]
-            Firestore[Spring Cloud GCP Firestore]
-            GoogleAI[Google AI Gemini Client]
-        end
+    %% 2. Presentation Layer
+    subgraph REST ["Presentation Layer (REST Controllers)"]
+        LeadController["Lead REST API"]
+        ChatController["Chat REST API"]
+        EventController["SSE Stream API"]
     end
 
-    UI -->|REST/HTTP| LeadController
-    EventController -->|Real-Time Event Stream| SSE
-    Firestore -->|NoSQL Persistence| GCP_FS[(Cloud Firestore)]
-    GoogleAI -->|Model Inference| GCP_Gemini[Google AI Gemini 2.0 Flash]
+    %% 3. Core Application Layer
+    subgraph Core ["Application & Domain (Core Services)"]
+        LeadAgent["AI Lead Steward Agent"]
+        LeadTools["Agent Java Tools"]
+        LeadService["Lead Management Service"]
+        JaroWinklerMatcher["Jaro-Winkler Similarity Matcher"]
+    end
+
+    %% 4. Infrastructure Layer
+    subgraph Adapt ["Infrastructure Layer (Adapters)"]
+        AiConfig["Pluggable AI Configurations"]
+        LeadRepository["Reactive Lead Repository"]
+        GoldenLeadRepository["Reactive Golden Lead Repository"]
+        EventPublisher["Reactive Event Publisher"]
+    end
+
+    %% 5. External Services (Right)
+    subgraph Ext ["External Systems"]
+        GCP_FS[("Cloud Firestore")]
+        Model["Gemini LLM / Mock Agent"]
+    end
+
+    %% --- CONNECTIONS ---
+    
+    %% Client Request Flow
+    UI -->|HTTP POST/GET| LeadController
+    UI -->|HTTP POST| ChatController
+
+    %% Presentation to Core
+    LeadController --> LeadService
+    ChatController --> LeadAgent
+
+    %% Core Business Logic & Tools
+    LeadAgent -->|Queries/Updates| LeadTools
+    LeadTools --> LeadService
+    LeadService --> JaroWinklerMatcher
+
+    %% Core to Infrastructure Adapters
+    LeadService --> LeadRepository
+    LeadService --> GoldenLeadRepository
+    LeadAgent -->|Inference Config| AiConfig
+
+    %% Adapters to External Services
+    LeadRepository -->|NoSQL Reads/Writes| GCP_FS
+    GoldenLeadRepository -->|NoSQL Reads/Writes| GCP_FS
+    AiConfig -->|API Requests| Model
+
+    %% Real-Time Event Sync Loop
+    LeadService -->|Publishes changes| EventPublisher
+    EventController <-.-|SSE Stream| EventPublisher
+    SSE <-.-|Push notifications| EventController
+    UI <-.-|Update Board| SSE
 ```
 
 ---
@@ -38,11 +76,11 @@ graph TD
 ## Technical Features & Stack
 
 ### 1. The Stack
-* **Backend:** Java 17 + Spring Boot 3.x
-* **AI Orchestration:** LangChain4j + Google AI Gemini SDK (Upgraded to **0.35.0** to support Google AI Developer models)
-* **Database:** Google Cloud Firestore (Native Mode)
-* **Real-time Sync:** Server-Sent Events (SSE)
-* **Authentication:** API Key Authentication (`GEMINI_API_KEY`)
+* **Backend:** Java 17 + Spring Boot 3.3.0 (WebFlux / Reactive Architecture)
+* **AI Orchestration:** LangChain4j + Google AI Gemini SDK & Vertex AI Gemini SDK (Upgraded to **0.35.0**)
+* **Database:** Google Cloud Firestore (Native Mode, accessed via Spring Cloud GCP Starter Data Firestore)
+* **Real-time Sync:** Server-Sent Events (SSE) using Project Reactor Sinks
+* **Authentication:** Multi-provider support (API Key for Google AI Studio or GCP IAM / Application Default Credentials for Vertex AI)
 * **Frontend:** React + Vite + Tailwind CSS (served statically by Spring Boot)
 
 ### 2. Core Agentic Logic (How the AI is Involved)
@@ -50,8 +88,8 @@ graph TD
   * Uses Gemini's training knowledge to automatically research the company (identifying its primary industry, estimated employee count, tech stack, and a short business description).
   * Generates a personalized outreach message based on the company's profile.
 * **The Java Match Engine:**
-  * Uses the Jaro-Winkler distance algorithm implemented in Java to compute similarity scores between lead names and company names.
-  * Exposed to the AI agent as a `@Tool` (`findPotentialDuplicates(double threshold)`).
+  * Uses the Jaro-Winkler similarity algorithm implemented in Java to compute similarity scores between lead names and company names.
+  * Exposed to the AI agent as a `@Tool` (`findDuplicateCandidates(double threshold)`).
 * **The "Lead Steward" Agent:**
   * The user can chat with the agent in the sidebar (e.g. *"Show me duplicate leads"* or *"Merge the duplicate records for John Smith"*).
   * The agent calls Java tools to merge records, updates Firestore, and triggers an SSE broadcast to update the UI.
@@ -60,7 +98,7 @@ graph TD
 
 ## The Sample Demo Dataset (LinkedIn Ready)
 
-We will seed Firestore with a realistic, messy dataset that highlights the deduplication and enrichment capabilities:
+We seed Firestore with a realistic, messy dataset that highlights the deduplication and enrichment capabilities:
 
 | Raw Name | Raw Company | Raw Email | Issue |
 | :--- | :--- | :--- | :--- |
@@ -72,22 +110,21 @@ We will seed Firestore with a realistic, messy dataset that highlights the dedup
 
 ---
 
-## Proposed Project Structure
-We will initialize the project in `C:\Users\cyarc\.gemini\antigravity-ide\scratch\gcp-java-smartlead-agent` using the following Clean Architecture structure:
+## Actual Project Structure
+The project is implemented in `C:\Users\cyarc\.gemini\antigravity-ide\scratch\gcp-java-smartlead-agent` using the following Clean Architecture structure:
 ```text
 com.example.smartlead
+├── SmartLeadApplication.java  # Spring Boot Application Entry Point
 ├── domain
-│   ├── model          # Lead.java, LeadStatus.java, GoldenLead.java
-│   └── service        # JaroWinklerMatcher.java (Java similarity matching)
+│   ├── model                  # Lead.java, GoldenLead.java (representing domain documents)
+│   └── service                # JaroWinklerMatcher.java (Java similarity matching algorithm)
 ├── application
-│   ├── port           # LeadRepositoryPort.java
-│   └── service        # LeadService.java (orchestrates enrichment and merges)
+│   └── service                # LeadAgent.java, LeadTools.java, LeadService.java (Core business logic & agent services)
 ├── infrastructure
-│   ├── adapter        # FirestoreLeadRepository.java
-│   └── config         # VertexAiConfig.java (Reconfigured for Google AI Gemini), EventPublisher.java
+│   ├── adapter                # LeadRepository.java, GoldenLeadRepository.java (Reactive Firestore Repositories)
+│   └── config                 # AiConfig.java (Pluggable Google AI / Vertex AI / Mock configurations), EventPublisher.java, MockLeadAgent.java
 └── presentation
-    ├── controller     # LeadController.java, EventController.java (SSE)
-    └── dto            # ChatRequest.java, LeadDto.java
+    └── controller             # LeadController.java, EventController.java (SSE), ChatController.java (REST Controller for UI integration)
 ```
 
 ---
@@ -96,11 +133,11 @@ com.example.smartlead
 
 ### Phase 1: Project Scaffolding
 1. Create directory `C:\Users\cyarc\.gemini\antigravity-ide\scratch\gcp-java-smartlead-agent`.
-2. Generate the Maven `pom.xml` with Spring Boot, Spring Cloud GCP, and LangChain4j dependencies.
-3. Add the Frontend build configuration.
+2. Generate the Maven `pom.xml` with Spring Boot, Spring Cloud GCP, Project Reactor, and LangChain4j dependencies.
+3. Add the Frontend build configuration and single-page React client under `frontend/`.
 
 ### Phase 2: GCP Resource Activation
-Run commands to set up the default Firestore Native database and Vertex AI APIs:
+Set up the default Firestore Native database and Vertex AI/Google AI APIs:
 ```powershell
 gcloud config set project YOUR_GCP_PROJECT_ID
 gcloud services enable firestore.googleapis.com generativelanguage.googleapis.com apikeys.googleapis.com
@@ -109,12 +146,13 @@ gcloud firestore databases create --location=nam5 --type=firestore-native
 
 ### Phase 3: Java Domain & Database Implementation
 1. Write domain models and the Java Jaro-Winkler string matcher.
-2. Implement the Firestore repository adapters.
+2. Implement the Firestore repository adapters extending `FirestoreReactiveRepository`.
 3. Seed the initial messy dataset into Firestore.
 
 ### Phase 4: LangChain4j Agent & SSE Implementation
-1. Configure `TaskAgent` (now calling `GoogleAiGeminiChatModel`) and annotate the Java tools.
-2. Write the Event Publisher and SSE Controller to stream updates to the client in real-time.
+1. Configure pluggable `LeadAgent` (supporting `GoogleAiGeminiChatModel`, `VertexAiGeminiChatModel`, or local `MockLeadAgent` fallback).
+2. Annotate agent tools in `LeadTools` using LangChain4j `@Tool` annotation.
+3. Write the Event Publisher and SSE Controller to stream updates to the client in real-time.
 
 ### Phase 5: Glassmorphic React UI
 1. Initialize the React app inside the project workspace.
@@ -123,25 +161,13 @@ gcloud firestore databases create --location=nam5 --type=firestore-native
 
 ### Phase 6: Verification & Deployment
 1. Test locally and verify the agent's function-calling capability.
-2. Deploy to Cloud Run:
-```powershell
-# 1. Build container image
-gcloud builds submit --tag us-central1-docker.pkg.dev/YOUR_GCP_PROJECT_ID/cloud-run-source-deploy/gcp-java-smartlead-agent:latest --region us-central1 --project YOUR_GCP_PROJECT_ID
-
-# 2. Deploy to Cloud Run with environment variable configuration
-gcloud run deploy gcp-java-smartlead-agent `
-  --image us-central1-docker.pkg.dev/YOUR_GCP_PROJECT_ID/cloud-run-source-deploy/gcp-java-smartlead-agent:latest `
-  --region us-central1 `
-  --project YOUR_GCP_PROJECT_ID `
-  --allow-unauthenticated `
-  --set-env-vars "GEMINI_API_KEY=YOUR_API_KEY"
-```
+2. Deploy to Cloud Run.
 
 ---
 
-## Technical Alterations Made During Implementation
+## Technical Alterations & Features Implemented
 
-1. **SDK and Endpoint Shift:** Due to Google Cloud's sandbox project restrictions preventing standard access to `aiplatform.googleapis.com` (Vertex AI) publisher models, we pivoted to the **Google AI Gemini Developer API** using the `generativelanguage.googleapis.com` endpoint.
-2. **LangChain4j Upgrade:** To use the Google AI SDK, we upgraded the LangChain4j version property in `pom.xml` from `0.32.0` to `0.35.0`.
-3. **Authentication Mechanism:** Switched from GCP IAM credentials to an API key-based authentication (`GEMINI_API_KEY`) bound via properties file.
-4. **Current Status Blocker:** Currently blocked by `429 RESOURCE_EXHAUSTED` due to the GCP project's developer free-tier quota being depleted (`limit: 0` for `generate_content_free_tier`). Requires enabling pay-as-you-go billing or topping up developer credits to fully test tool-calling enrichment.
+1. **Pluggable AI Providers:** Built pluggable configurations for three providers: `google-ai` (using Google AI Developer API with API Key), `vertex-ai` (using GCP IAM & ADC), and `mock` (an out-of-the-box offline Mock agent that mimics Gemini behavior using Java logic, allowing rapid frontend development without GCP configurations).
+2. **SDK and Endpoint Shift:** Shifted to support the Google AI Developer API (`generativelanguage.googleapis.com`) using `gemini-1.5-flash` in addition to Vertex AI (`gemini-3.5-flash`) due to standard sandbox quota limitations.
+3. **LangChain4j Upgrade:** Upgraded LangChain4j version to `0.35.0` in `pom.xml`.
+4. **Reactive Stack Integration:** The entire backend is built reactive, utilizing Project Reactor `Flux`, `Mono`, and reactive Firestore drivers for low-latency streaming and high scalability.
