@@ -13,7 +13,7 @@ COPY pom.xml ./
 COPY src ./src
 # Copy static frontend assets built in Stage 1 into the Spring resources static directory
 COPY --from=frontend-builder /app/src/main/resources/static ./src/main/resources/static
-RUN mvn package -DskipTests -B
+RUN mvn package -B
 
 
 # Stage 3: Final JRE runtime image
