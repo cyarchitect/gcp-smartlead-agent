@@ -4,11 +4,7 @@ import {
   RefreshCw, 
   Database, 
   Send, 
-  User, 
-  CheckCircle, 
   Layers, 
-  Users, 
-  AlertTriangle,
   Mail,
   Briefcase,
   Sun,
@@ -17,8 +13,7 @@ import {
   Trello,
   Table,
   X,
-  Cpu,
-  HelpCircle
+  Cpu
 } from 'lucide-react'
 
 export default function App() {
