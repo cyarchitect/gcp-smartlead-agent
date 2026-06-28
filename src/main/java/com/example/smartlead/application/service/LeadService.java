@@ -5,6 +5,7 @@ import com.example.smartlead.domain.model.Lead;
 import com.example.smartlead.domain.service.JaroWinklerMatcher;
 import com.example.smartlead.infrastructure.adapter.GoldenLeadRepository;
 import com.example.smartlead.infrastructure.adapter.LeadRepository;
+import com.example.smartlead.infrastructure.config.EventPublisher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
@@ -26,6 +27,9 @@ public class LeadService {
 
     @Autowired
     private JaroWinklerMatcher similarityMatcher;
+
+    @Autowired
+    private EventPublisher eventPublisher;
 
     /**
      * Seeds the Firestore collections with our initial LinkedIn-ready messy dataset.
@@ -85,6 +89,10 @@ public class LeadService {
         return leadRepository.findAll();
     }
 
+    public Flux<Lead> getRawLeads() {
+        return leadRepository.findByStatus("RAW");
+    }
+
     public Flux<GoldenLead> getAllGoldenLeads() {
         return goldenLeadRepository.findAll();
     }
@@ -128,8 +136,25 @@ public class LeadService {
                                     updateOperations.add(leadRepository.save(l));
                                 }
                                 return Mono.when(updateOperations)
+                                        .then(Mono.fromRunnable(() -> eventPublisher.publish(savedGolden)))
                                         .thenReturn(savedGolden);
                             });
+                });
+    }
+
+    /**
+     * Enriches a lead record and publishes the update event.
+     */
+    public Mono<Lead> enrichLead(String leadId, String industry, int companySize, String techStack, String outreachMessage) {
+        return leadRepository.findById(leadId)
+                .flatMap(lead -> {
+                    lead.setEnrichedIndustry(industry);
+                    lead.setEnrichedSize(companySize);
+                    lead.setEnrichedTechStack(techStack);
+                    lead.setOutreachMessage(outreachMessage);
+                    lead.setStatus("ENRICHED");
+                    return leadRepository.save(lead)
+                            .doOnNext(savedLead -> eventPublisher.publish(savedLead));
                 });
     }
 

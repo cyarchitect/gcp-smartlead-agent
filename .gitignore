@@ -51,3 +51,6 @@ desktop.ini
 *private*.json
 gcp-*.json
 service-account*.json
+
+# Portable Maven
+.maven/

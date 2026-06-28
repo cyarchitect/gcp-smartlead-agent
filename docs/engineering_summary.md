@@ -18,7 +18,7 @@ graph TD
 
 - **Domain Layer:** Contains core business entities (`Lead` entity, `LeadStatus` enum) and domain services (`JaroWinklerMatcher` for duplicate candidate scoring). Free of external library dependencies.
 - **Application Layer:** Defines the input ports (`LeadService`) and output port interfaces (repositories, chat model definitions). Holds the LLM agent definition (`LeadAgent` interface) and custom tools (`LeadTools`).
-- **Infrastructure Layer:** Implements adapters for Firestore (`FirestoreLeadRepository` via Spring Cloud GCP) and configures the LLM integration (`VertexAiConfig`).
+- **Infrastructure Layer:** Implements adapters for Firestore (`FirestoreLeadRepository` via Spring Cloud GCP) and configures the LLM integration (`AiConfig`).
 - **Presentation Layer:** REST Controllers providing endpoints for seeding data, chat message dispatching, and SSE (Server-Sent Events) streaming.
 - **Frontend:** A responsive Single-Page React App utilizing Tailwind CSS, displaying a Kanban board, lead tables, and a real-time AI Chat sidebar.
 
