@@ -92,11 +92,11 @@ To avoid timed-out REST requests during long enrichment tasks, we implemented a 
 ### Build & Deploy Commands
 ```bash
 # 1. Compile and upload the container image via Google Cloud Build
-gcloud builds submit --tag us-central1-docker.pkg.dev/YOUR_GCP_PROJECT_ID/cloud-run-source-deploy/gcp-java-smartlead-agent:latest --region us-central1 --project YOUR_GCP_PROJECT_ID
+gcloud builds submit --tag us-central1-docker.pkg.dev/YOUR_GCP_PROJECT_ID/cloud-run-source-deploy/gcp-smartlead-agent:latest --region us-central1 --project YOUR_GCP_PROJECT_ID
 
 # 2. Deploy container to Cloud Run with the Gemini API Key injection
-gcloud run deploy gcp-java-smartlead-agent \
-  --image us-central1-docker.pkg.dev/YOUR_GCP_PROJECT_ID/cloud-run-source-deploy/gcp-java-smartlead-agent:latest \
+gcloud run deploy gcp-smartlead-agent \
+  --image us-central1-docker.pkg.dev/YOUR_GCP_PROJECT_ID/cloud-run-source-deploy/gcp-smartlead-agent:latest \
   --region us-central1 \
   --project YOUR_GCP_PROJECT_ID \
   --allow-unauthenticated \

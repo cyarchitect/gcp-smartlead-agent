@@ -29,11 +29,11 @@ Update the model name parameter from `"gemini-1.5-flash"` to `"gemini-3.5-flash"
 We will build the container image using Cloud Build and deploy it to Cloud Run:
 1. Build the Docker image:
    ```bash
-   gcloud builds submit --tag us-central1-docker.pkg.dev/YOUR_GCP_PROJECT_ID/cloud-run-source-deploy/gcp-java-smartlead-agent:latest --region us-central1 --project YOUR_GCP_PROJECT_ID
+   gcloud builds submit --tag us-central1-docker.pkg.dev/YOUR_GCP_PROJECT_ID/cloud-run-source-deploy/gcp-smartlead-agent:latest --region us-central1 --project YOUR_GCP_PROJECT_ID
    ```
 2. Deploy the container to Cloud Run:
    ```bash
-   gcloud run deploy gcp-java-smartlead-agent --image us-central1-docker.pkg.dev/YOUR_GCP_PROJECT_ID/cloud-run-source-deploy/gcp-java-smartlead-agent:latest --region us-central1 --project YOUR_GCP_PROJECT_ID --allow-unauthenticated
+   gcloud run deploy gcp-smartlead-agent --image us-central1-docker.pkg.dev/YOUR_GCP_PROJECT_ID/cloud-run-source-deploy/gcp-smartlead-agent:latest --region us-central1 --project YOUR_GCP_PROJECT_ID --allow-unauthenticated
    ```
 
 ### Manual Verification
