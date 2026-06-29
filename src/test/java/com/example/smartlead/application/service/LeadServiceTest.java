@@ -79,7 +79,7 @@ public class LeadServiceTest {
 
     @Test
     public void testFindPotentialDuplicates() {
-        when(leadRepository.findByStatus("RAW")).thenReturn(Flux.just(lead1, lead2));
+        when(leadRepository.findAll()).thenReturn(Flux.just(lead1, lead2));
 
         List<List<Lead>> duplicates = leadService.findPotentialDuplicates(0.7).collectList().block();
 

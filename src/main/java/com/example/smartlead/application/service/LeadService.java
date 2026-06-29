@@ -162,7 +162,8 @@ public class LeadService {
      * Uses the Jaro-Winkler engine to find potential duplicate leads.
      */
     public Flux<List<Lead>> findPotentialDuplicates(double threshold) {
-        return leadRepository.findByStatus("RAW")
+        return leadRepository.findAll()
+                .filter(l -> !"MERGED".equals(l.getStatus()))
                 .collectList()
                 .flatMapMany(leads -> {
                     List<List<Lead>> duplicateGroups = new ArrayList<>();
