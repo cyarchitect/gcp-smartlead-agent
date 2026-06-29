@@ -1,0 +1,79 @@
+graph LR
+    %% 1. Client Layer (Left)
+    subgraph Client ["React Frontend (Client Layer)"]
+        UI["Lead Board & Chat Console"]
+        SSE["SSE Live Updater"]
+    end
+
+    %% 2. Presentation Layer
+    subgraph REST ["Presentation Layer (REST Controllers)"]
+        LeadController["Lead REST API"]
+        ChatController["Chat REST API"]
+        EventController["SSE Stream API"]
+    end
+
+    %% 3. Core Application Layer
+    subgraph Core ["Application & Domain (Core Services)"]
+        LeadAgent["AI Lead Steward Agent"]
+        LeadTools["Agent Java Tools"]
+        LeadService["Lead Management Service"]
+        JaroWinklerMatcher["Jaro-Winkler Similarity Matcher"]
+    end
+
+    %% 4. Infrastructure Layer
+    subgraph Adapt ["Infrastructure Layer (Adapters)"]
+        AiConfig["Pluggable AI Configurations"]
+        LeadRepository["Reactive Lead Repository"]
+        GoldenLeadRepository["Reactive Golden Lead Repository"]
+        EventPublisher["Reactive Event Publisher"]
+    end
+
+    %% 5. External Services (Right)
+    subgraph Ext ["External Systems"]
+        GCP_FS[("Cloud Firestore")]
+        Model["Gemini LLM / Mock Agent"]
+    end
+
+    %% --- CONNECTIONS ---
+    
+    %% Client Request Flow
+    UI -->|HTTP POST/GET| LeadController
+    UI -->|HTTP POST| ChatController
+
+    %% Presentation to Core
+    LeadController --> LeadService
+    ChatController --> LeadAgent
+
+    %% Core Business Logic & Tools
+    LeadAgent -->|Queries/Updates| LeadTools
+    LeadTools --> LeadService
+    LeadService --> JaroWinklerMatcher
+
+    %% Core to Infrastructure Adapters
+    LeadService --> LeadRepository
+    LeadService --> GoldenLeadRepository
+    LeadAgent -->|Inference Config| AiConfig
+
+    %% Adapters to External Services
+    LeadRepository -->|NoSQL Reads/Writes| GCP_FS
+    GoldenLeadRepository -->|NoSQL Reads/Writes| GCP_FS
+    AiConfig -->|API Requests| Model
+
+    %% Real-Time Event Sync Loop
+    LeadService -->|Publishes changes| EventPublisher
+    EventController <-.-|SSE Stream| EventPublisher
+    SSE <-.-|Push notifications| EventController
+    UI <-.-|Update Board| SSE
+
+    %% --- STYLING ---
+    classDef client fill:#e0f2fe,stroke:#0284c7,stroke-width:2px,color:#0369a1,font-weight:bold;
+    classDef rest fill:#f0fdf4,stroke:#16a34a,stroke-width:2px,color:#15803d,font-weight:bold;
+    classDef core fill:#faf5ff,stroke:#9333ea,stroke-width:2px,color:#7e22ce,font-weight:bold;
+    classDef adapt fill:#fff7ed,stroke:#ea580c,stroke-width:2px,color:#c2410c,font-weight:bold;
+    classDef ext fill:#f8fafc,stroke:#475569,stroke-width:2px,color:#334155,font-weight:bold;
+
+    class UI,SSE client;
+    class LeadController,ChatController,EventController rest;
+    class LeadAgent,LeadTools,LeadService,JaroWinklerMatcher core;
+    class AiConfig,LeadRepository,GoldenLeadRepository,EventPublisher adapt;
+    class GCP_FS,Model ext;
