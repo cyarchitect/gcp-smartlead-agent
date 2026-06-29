@@ -68,24 +68,6 @@ public class MockLeadAgent implements LeadAgent {
                   .append(industry).append(", Size: ").append(String.format("%,d", size)).append(", Tech Stack: ").append(techStack).append("\n");
             }
             return sb.toString();
-        } else if (msg.contains("duplicate") || msg.contains("find")) {
-            List<List<Lead>> duplicateGroups = leadService.findPotentialDuplicates(0.7).collectList().block();
-            if (duplicateGroups == null || duplicateGroups.isEmpty()) {
-                return "SmartLead AI (Mock Mode): I scanned the database and found 0 potential duplicate lead groups.";
-            }
-
-            StringBuilder sb = new StringBuilder();
-            sb.append("SmartLead AI (Mock Mode): Identified ").append(duplicateGroups.size()).append(" duplicate groups:\n\n");
-            for (int i = 0; i < duplicateGroups.size(); i++) {
-                List<Lead> group = duplicateGroups.get(i);
-                sb.append("Group ").append(i + 1).append(":\n");
-                for (Lead l : group) {
-                    sb.append("  - ").append(l.getName()).append(" @ ").append(l.getCompany()).append(" (").append(l.getEmail()).append(")\n");
-                }
-                sb.append("\n");
-            }
-            sb.append("You can tell me to 'merge duplicates' to consolidate these records.");
-            return sb.toString();
         } else if (msg.contains("merge")) {
             List<List<Lead>> duplicateGroups = leadService.findPotentialDuplicates(0.7).collectList().block();
             if (duplicateGroups == null || duplicateGroups.isEmpty()) {
@@ -117,6 +99,24 @@ public class MockLeadAgent implements LeadAgent {
                       .append("  - Merged Raw IDs: ").append(String.join(", ", rawLeadIds)).append("\n\n");
                 }
             }
+            return sb.toString();
+        } else if (msg.contains("duplicate") || msg.contains("find")) {
+            List<List<Lead>> duplicateGroups = leadService.findPotentialDuplicates(0.7).collectList().block();
+            if (duplicateGroups == null || duplicateGroups.isEmpty()) {
+                return "SmartLead AI (Mock Mode): I scanned the database and found 0 potential duplicate lead groups.";
+            }
+
+            StringBuilder sb = new StringBuilder();
+            sb.append("SmartLead AI (Mock Mode): Identified ").append(duplicateGroups.size()).append(" duplicate groups:\n\n");
+            for (int i = 0; i < duplicateGroups.size(); i++) {
+                List<Lead> group = duplicateGroups.get(i);
+                sb.append("Group ").append(i + 1).append(":\n");
+                for (Lead l : group) {
+                    sb.append("  - ").append(l.getName()).append(" @ ").append(l.getCompany()).append(" (").append(l.getEmail()).append(")\n");
+                }
+                sb.append("\n");
+            }
+            sb.append("You can tell me to 'merge duplicates' to consolidate these records.");
             return sb.toString();
         }
 
