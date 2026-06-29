@@ -29,6 +29,8 @@ The application supports three AI provider modes configured via the `ai.provider
 
 The project adheres to **Clean Architecture / Ports & Adapters (Hexagonal)** boundaries to maintain a clear separation of concerns, testability, and infrastructure pluggability.
 
+![SmartLead AI System Architecture](docs/images/architecture_diagram.png)
+
 ```mermaid
 graph TD
     UI[React Frontend - App.jsx] -->|SSE / REST| Controller[Controllers - Web Adapter]
