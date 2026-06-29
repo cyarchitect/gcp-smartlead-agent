@@ -54,3 +54,6 @@ service-account*.json
 
 # Portable Maven
 .maven/
+
+# Media files for posts (local only)
+linkedin-media/
