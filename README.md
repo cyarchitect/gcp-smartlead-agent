@@ -56,10 +56,10 @@ Since it defaults to `mock` mode, you do not need GCP configuration or billing s
 
 ```bash
 # Verify all tests compile and pass
-mvn clean test
+./mvnw clean test    # Or on Windows PowerShell: .\mvnw.cmd clean test
 
 # Run the Spring Boot application
-mvn spring-boot:run
+./mvnw spring-boot:run
 ```
 The server will start on port `8080`.
 
@@ -76,7 +76,7 @@ The server will start on port `8080`.
    ```bash
    npm run dev
    ```
-4. Open [http://localhost:5173](http://localhost:5173) in your browser.
+4. Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ---
 
@@ -109,5 +109,5 @@ To switch from the default `mock` mode to a live Gemini API model, configure the
    ai.provider=vertex-ai
    spring.cloud.gcp.project-id=YOUR_GCP_PROJECT_ID
    gemini.location=us-central1
-   gemini.model.name=gemini-3.5-flash
+   gemini.model.name=gemini-1.5-flash
    ```

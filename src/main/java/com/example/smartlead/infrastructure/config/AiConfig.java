@@ -33,7 +33,7 @@ public class AiConfig {
     public ChatLanguageModel vertexAiChatLanguageModel(
             @Value("${spring.cloud.gcp.project-id}") String project,
             @Value("${gemini.location:us-central1}") String location,
-            @Value("${gemini.model.name:gemini-3.5-flash}") String modelName) {
+            @Value("${gemini.model.name:gemini-1.5-flash}") String modelName) {
         return VertexAiGeminiChatModel.builder()
                 .project(project)
                 .location(location)
